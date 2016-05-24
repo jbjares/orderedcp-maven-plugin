@@ -5,7 +5,11 @@ A Mojo plugin to workaround the problem of multi-modules maven projects that nee
 **Usage**
 ----------
 1) Clone it;
+
+---
 2) Use Maven to build and install the plugin;
+
+---
 3) Add	the dependency:
 <dependency>
 		<groupId>order.plugin</groupId>
@@ -13,6 +17,7 @@ A Mojo plugin to workaround the problem of multi-modules maven projects that nee
 		<version>0.0.1-SNAPSHOT</version>
 		<scope>provided</scope>
 </dependency>
+---
 4) Add the plugin:
 <plugin>
 				<groupId>order.plugin</groupId>
@@ -41,9 +46,9 @@ A Mojo plugin to workaround the problem of multi-modules maven projects that nee
 					</execution>
 				</executions>
 			</plugin>
-			
-	5) Run it: mvn openiot:cp-ordered
+
+---		
+5) Run it: mvn openiot:cp-ordered
 	
-	--
 	
 	Thanks!

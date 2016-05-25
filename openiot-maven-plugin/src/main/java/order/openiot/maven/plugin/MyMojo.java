@@ -9,12 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.util.IOUtil;
 
 @Mojo( name = "cp-ordered")
 public class MyMojo extends AbstractMojo {
@@ -42,24 +40,53 @@ public class MyMojo extends AbstractMojo {
 				}catch(java.net.ConnectException jne){
 					throw new RuntimeException("AS is not running on 127.0.0.1:8080",jne);
 				}
-		    
-			getLog().info("%%% "+targetDir+" %%%");
-			getLog().info("%%% "+Arrays.asList(orderedSourceFiles).toString()+" %%%");
-			int count = 1;
-			for(File file: orderedSourceFiles){
-				getLog().info(count+") ====> copying file from: "+file.getAbsolutePath()+" to: "+targetDir.getAbsolutePath());
-				FileUtils.copyFileToDirectory(file, targetDir);
-				getLog().info(count+") ====> The file: "+file.getAbsolutePath()+" was copied to: "+targetDir.getAbsolutePath());
-				count++;
-			}
-			
-			getLog().info("%%% Mojo cp-ordered Finished! %%%");
+				copyFilesToJBossDeploymentFolder(null);
 		    
 		} catch (RuntimeException | IOException e) {
 			getLog().error(e);
 			throw new RuntimeException("ERROR: ", e);
 		}
 	}
+
+	private void copyFilesToJBossDeploymentFolder(File file) throws IOException {
+
+		File actualFile = file;
+		if(file==null && orderedSourceFiles.size()==1){
+			//cleanDeploymentFolder();
+			actualFile = orderedSourceFiles.get(0);
+			FileUtils.copyFileToDirectory(actualFile, targetDir);
+			return;
+		}
+
+		for(File nextFile:orderedSourceFiles){
+			getLog().info("nextFile: "+nextFile);
+				FileUtils.copyFileToDirectory(nextFile, targetDir);
+				String fileNameWithoutSuffix = nextFile.getName().substring(0,nextFile.getName().indexOf(".war"));
+				File deployedFile = new File(targetDir+"\\"+fileNameWithoutSuffix+".war.deployed");
+				while(!deployedFile.exists()){
+					getLog().info("=== "+deployedFile.getCanonicalPath()+deployedFile.getName());
+					getLog().info("=== into isdeployed loop:value: "+deployedFile.exists()+" FOR: "+fileNameWithoutSuffix+".war.deployed");
+					//TODO improve it. create a timeout, avaliate other file types.
+					continue;
+				}
+		}
+			
+		getLog().info("%%% Mojo cp-ordered Finished! %%%");
+		
+	}
+
+	private void cleanDeploymentFolder() {
+	
+		File target = targetDir;
+		if(!target.isDirectory()){
+			return;
+		}
+		for(File fileToDelete:target.listFiles()){
+			fileToDelete.delete();
+		}
+	}
+
+
 
 	public File getTargetDir() {
 		return targetDir;
@@ -78,7 +105,20 @@ public class MyMojo extends AbstractMojo {
 	}
 
 
-
+	public static void main(String[] args) {
+		File file = new File("C:\\ProgramFilesDevel\\jboss-as-7.1.1.Final\\standalone\\deployments\\test-0.0.1-SNAPSHOT.war");
+		String fileNameWithoutSuffix = file.getName().substring(0,file.getName().indexOf(".war"));
+		System.out.println(fileNameWithoutSuffix);
+		File parentFile = file.getParentFile();
+		System.out.println(parentFile.getAbsolutePath());
+		//for(File subNamedFiles:parentFile.listFiles()){
+			File expectedFile = new File(fileNameWithoutSuffix+".war.deployed");
+			while(!expectedFile.exists()){
+				//TODO improve it. create a timeout, avaliate other file types.
+				continue;
+			}
+		//}
+	}
 
 	
 }

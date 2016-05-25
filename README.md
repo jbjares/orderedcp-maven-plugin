@@ -54,6 +54,8 @@ A Maven Mojo plugin to workaround the problem of multi-modules maven projects th
 
 ---		
 5) Run it:  mvn install openiot:cp-ordered
+
+###Video: https://youtu.be/CSJNn5Ivmv0
 	
 
 
